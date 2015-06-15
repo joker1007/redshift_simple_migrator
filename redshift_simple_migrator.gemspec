@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Simple schema migrator for AWS Redshift}
   spec.description   = %q{Simple schema migrator for AWS Redshift}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/joker1007/redshift_simple_migrator"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

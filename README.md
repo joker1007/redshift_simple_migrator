@@ -1,6 +1,6 @@
 # RedshiftSimpleMigrator
 
-this gem is super simple migrator for AWS Redshift.
+this gem is super simple migrator for AWS Redshift (and PostgreSQL).
 
 ## Installation
 
