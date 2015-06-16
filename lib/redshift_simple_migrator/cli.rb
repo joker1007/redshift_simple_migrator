@@ -17,9 +17,9 @@ module RedshiftSimpleMigrator
     def list(version = nil)
       with_migrator do |m|
         m.migrations_path = migrations_path
-        run_migrations = m.run_migrations(version)
-        run_migrations.each do |migration|
-          puts "#{migration.version} #{migration.class.to_s}"
+        direction, migrations = m.run_migrations(version)
+        migrations.each do |migration|
+          puts "#{direction} #{migration.version} #{migration.class.to_s}"
         end
       end
     end
@@ -36,9 +36,21 @@ module RedshiftSimpleMigrator
 
     private
 
-    def migrator(config_file)
-      connection = Connection.init_with_config_file(config_file)
-      Migrator.new(connection)
+    def load_config
+      RedshiftSimpleMigrator.config.load(config_file)
+    end
+
+    def migrator
+      return @migrator if @migrator
+
+      load_config
+      @migrator = Migrator.new
+    end
+
+    def with_migrator
+      yield migrator
+    ensure
+      migrator.close if migrator
     end
 
     def config_file
@@ -49,13 +61,6 @@ module RedshiftSimpleMigrator
     def migrations_path
       raise "Migrations path is not found" unless File.exist?(options[:path])
       options[:path]
-    end
-
-    def with_migrator
-      migrator = migrator(config_file)
-      yield migrator
-    ensure
-      migrator.close
     end
   end
 end

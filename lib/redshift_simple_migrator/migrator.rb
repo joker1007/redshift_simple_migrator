@@ -9,9 +9,10 @@ module RedshiftSimpleMigrator
 
     MIGRATION_FILE_PATTERN = /^(?<version>\d+)_(?<migration_name>.*)\.rb$/.freeze
 
-    def initialize(connection, schema_migrations_table_name = nil)
-      @connection = connection
-      @schema_migrations_table_name ||= schema_migrations_table_name || "schema_migrations"
+    def initialize
+      @connection = Connection.new
+      @schema_migrations_table_name =
+        RedshiftSimpleMigrator.config.schema_migrations_table_name
     end
 
     def current_migrations
@@ -28,16 +29,19 @@ module RedshiftSimpleMigrator
     end
 
     def run_migrations(target_version = nil)
-      if direction(target_version) == :up
+      direction = detect_direction(target_version)
+      if direction == :up
         migrations = current_migrations.select do |m|
-          current_version ? m.version > current_version : true
+          include_target = target_version ? target_version.to_i >= m.version : true
+          include_target && m.version > current_version.to_i
         end
-        migrations.sort_by(&:version)
+        return direction, migrations.sort_by(&:version)
       else
         migrations = current_migrations.select do |m|
-          current_version ? m.version <= current_version : false
+          target_version.to_i < m.version &&
+            m.version <= current_version.to_i
         end
-        migrations.sort_by {|m| -(m.version) }
+        return direction, migrations.sort_by {|m| -(m.version) }
       end
     end
 
@@ -56,11 +60,10 @@ module RedshiftSimpleMigrator
 
     def run(target_version = nil)
       connection.with_transaction do
-        run_migrations(target_version).each do |m|
-          d = direction(target_version)
-          p d
-          m.send(d)
-          if d == :up
+        direction, migrations = run_migrations(target_version)
+        migrations.each do |m|
+          m.send(direction)
+          if direction == :up
             insert_version(m.version)
           else
             remove_version(m.version)
@@ -75,7 +78,7 @@ module RedshiftSimpleMigrator
       "SELECT version FROM #{connection.escape_identifier(schema_migrations_table_name)}"
     end
 
-    def direction(target_version)
+    def detect_direction(target_version)
       return :up unless target_version && current_version
 
       if current_version.to_i <= target_version.to_i

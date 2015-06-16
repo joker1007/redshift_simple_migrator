@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "pg", ">= 0.18"
-  spec.add_runtime_dependency "activesupport", ">= 3"
+  spec.add_runtime_dependency "activesupport", ">= 4"
   spec.add_runtime_dependency "thor"
 
   spec.add_development_dependency "bundler", "~> 1.10"

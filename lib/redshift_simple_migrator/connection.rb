@@ -17,15 +17,8 @@ module RedshiftSimpleMigrator
       :escape_literal,
       to: :connection
 
-    class << self
-      def init_with_config_file(config_file, default_env = "development")
-        env = ENV["REDSHIFT_ENV"] || default_env
-        new(YAML.load_file(config_file)[env])
-      end
-    end
-
-    def initialize(config)
-      @connection = PG.connect(config)
+    def initialize
+      @connection = PG.connect(RedshiftSimpleMigrator.config.database_config)
       @connection.type_map_for_results = PG::BasicTypeMapForResults.new(@connection)
     end
 
