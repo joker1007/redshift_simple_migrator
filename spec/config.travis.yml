@@ -1,0 +1,3 @@
+test:
+  dbname: travis_ci_test
+  user: postgres
