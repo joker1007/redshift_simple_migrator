@@ -2,7 +2,13 @@ module RedshiftSimpleMigrator
   class Migration
     attr_reader :connection, :version
 
-    delegate :exec, to: :connection
+    delegate \
+      :exec,
+      :escape,
+      :escape_string,
+      :escape_identifier,
+      :escape_literal,
+      to: :connection
     alias :execute :exec
 
     def initialize(connection, version)
