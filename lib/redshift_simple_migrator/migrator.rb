@@ -2,17 +2,17 @@ require 'active_support/inflector'
 
 module RedshiftSimpleMigrator
   class Migrator
-    attr_reader :connection, :schema_migrations_table_name
-    attr_accessor :migrations_path
+    attr_reader :connection, :migrations_path, :schema_migrations_table_name
 
     delegate :close, to: :connection
 
     MIGRATION_FILE_PATTERN = /^(?<version>\d+)_(?<migration_name>.*)\.rb$/.freeze
 
     def initialize
+      config = RedshiftSimpleMigrator.config
       @connection = Connection.new
-      @schema_migrations_table_name =
-        RedshiftSimpleMigrator.config.schema_migrations_table_name
+      @migrations_path = config.migrations_path
+      @schema_migrations_table_name = config.schema_migrations_table_name
     end
 
     def current_migrations

@@ -16,7 +16,6 @@ module RedshiftSimpleMigrator
     option :path, required: true, type: :string, aliases: :p
     def list(version = nil)
       with_migrator do |m|
-        m.migrations_path = migrations_path
         direction, migrations = m.run_migrations(version)
         migrations.each do |migration|
           puts "#{direction} #{migration.version} #{migration.class.to_s}"
@@ -29,7 +28,6 @@ module RedshiftSimpleMigrator
     option :path, required: true, type: :string, aliases: :p
     def migrate(version = nil)
       with_migrator do |m|
-        m.migrations_path = migrations_path
         m.run(version)
       end
     end
@@ -37,13 +35,20 @@ module RedshiftSimpleMigrator
     private
 
     def load_config
-      RedshiftSimpleMigrator.config.load(config_file)
+      raise "Config file is not found" unless File.exist?(options[:config])
+      RedshiftSimpleMigrator.config.load(options[:config])
+    end
+
+    def set_migrations_path
+      raise "Migrations path is not found" unless File.exist?(options[:path])
+      RedshiftSimpleMigrator.config.migrations_path = options[:path]
     end
 
     def migrator
       return @migrator if @migrator
 
       load_config
+      set_migrations_path
       @migrator = Migrator.new
     end
 
@@ -51,16 +56,6 @@ module RedshiftSimpleMigrator
       yield migrator
     ensure
       migrator.close if migrator
-    end
-
-    def config_file
-      raise "Config file is not found" unless File.exist?(options[:config])
-      options[:config]
-    end
-
-    def migrations_path
-      raise "Migrations path is not found" unless File.exist?(options[:path])
-      options[:path]
     end
   end
 end
