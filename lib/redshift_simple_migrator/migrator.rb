@@ -22,7 +22,7 @@ module RedshiftSimpleMigrator
       migrations = Dir.entries(migrations_path).map do |name|
         if match = MIGRATION_FILE_PATTERN.match(name)
           load File.expand_path(File.join(migrations_path, name))
-          migration_class = match[:migration_name].classify.constantize
+          migration_class = match[:migration_name].camelcase.constantize
           migration_class.new(connection, match[:version].to_i)
         end
       end
