@@ -12,7 +12,8 @@ module RedshiftSimpleMigrator
       config = RedshiftSimpleMigrator.config
       @connection = Connection.new
       @migrations_path = config.migrations_path
-      @schema_migrations_table_name = config.schema_migrations_table_name
+      @schema_migrations_table_name =
+        @connection.escape_identifier(config.schema_migrations_table_name)
     end
 
     def current_migrations
@@ -56,6 +57,9 @@ module RedshiftSimpleMigrator
         @current_version_is_loaded = true
         @current_version
       end
+    rescue PG::UndefinedTable
+      connection.exec(create_schema_migrations_table_query)
+      retry
     end
 
     def run(target_version = nil)
@@ -75,7 +79,11 @@ module RedshiftSimpleMigrator
     private
 
     def get_version_query
-      "SELECT version FROM #{connection.escape_identifier(schema_migrations_table_name)}"
+      "SELECT version FROM #{schema_migrations_table_name}"
+    end
+
+    def create_schema_migrations_table_query
+      "CREATE TABLE IF NOT EXISTS #{schema_migrations_table_name} (version text NOT NULL)"
     end
 
     def detect_direction(target_version)
@@ -90,13 +98,13 @@ module RedshiftSimpleMigrator
 
     def insert_version(version)
       connection.exec_params(<<-SQL, [version.to_s])
-      INSERT INTO #{connection.escape_identifier(schema_migrations_table_name)} (version) VALUES ($1)
+      INSERT INTO #{schema_migrations_table_name} (version) VALUES ($1)
       SQL
     end
 
     def remove_version(version)
       connection.exec_params(<<-SQL, [version.to_s])
-      DELETE FROM #{connection.escape_identifier(schema_migrations_table_name)} WHERE version = $1
+      DELETE FROM #{schema_migrations_table_name} WHERE version = $1
       SQL
     end
   end
