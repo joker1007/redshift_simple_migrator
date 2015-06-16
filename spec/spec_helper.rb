@@ -41,6 +41,6 @@ RSpec.configure do |config|
 end
 
 RedshiftSimpleMigrator.configure do |c|
-  c.load(File.expand_path(File.join(__FILE__, "../config.travis.yml")))
+  c.load(File.expand_path(File.join(__FILE__, "../config.yml")))
   c.migrations_path = File.expand_path(File.join(__FILE__, "../migrate"))
 end

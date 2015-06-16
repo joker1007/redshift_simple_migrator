@@ -1,0 +1,2 @@
+test:
+  dbname: redshift_simple_migrator_test

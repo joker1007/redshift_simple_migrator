@@ -14,6 +14,9 @@ module RedshiftSimpleMigrator
       @migrations_path = config.migrations_path
       @schema_migrations_table_name =
         @connection.escape_identifier(config.schema_migrations_table_name)
+
+      @current_version_is_loaded = nil
+      @current_migrations = nil
     end
 
     def current_migrations
@@ -63,8 +66,8 @@ module RedshiftSimpleMigrator
     end
 
     def run(target_version = nil)
+      direction, migrations = run_migrations(target_version)
       connection.with_transaction do
-        direction, migrations = run_migrations(target_version)
         migrations.each do |m|
           m.send(direction)
           if direction == :up
