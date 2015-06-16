@@ -20,12 +20,65 @@ Or install it yourself as:
 
 ## Usage
 
+### Define migration
+
+Migration definition is like ActiveRecord::Migration,
+but this gem supports only `execute` method.
+It has no other migration dsl.
+
+#### Migration File
+
+```ruby
+class CreateKpiMiddleTable < RedshiftSimpleMigrator::Migration
+  def up
+    execute <<-SQL
+      CREATE TABLE company_users DISTKEY (id) AS
+      SELECT
+        a.id,
+        a.company_id
+      FROM
+        users a
+          INNER JOIN companies b ON a.company_id = b.id;
+    SQL
+  end
+
+  def down
+    execute <<-SQL
+      DROP TABLE company_users;
+    SQL
+  end
+end
+```
+
+#### File name convention
+
+File name convention is same with ActiveRecord::Migration.
+
+```
+% ls redshift/migrate/
+001_create_kpi_middle_table.rb
+```
+
+### Command
+
 ```sh
+# Show current migration version
+$ redshift_simple_migrator version -c <config.yml>
+
 # List execute migrations
 $ redshift_simple_migrator list <TARGET_VERSION> -c <config.yml> -p <migrations_path>
 
 # Execute migration
 $ redshift_simple_migrator migrate <TARGET_VERSION> -c <config.yml> -p <migrations_path>
+```
+
+If you use with rails, config is autoloaded from `config/redshift_simple_migrator.yml`, and define Rake tasks.
+
+### Rake tasks
+
+```
+rake redshift:migrate                   # Migrate the AWS Redshift (options: VERSION=x)
+rake redshift:migrate:status            # Display status of AWS Redshift migration (options: VERSION=x)
 ```
 
 ### config.yml example
@@ -38,10 +91,23 @@ default: &default
   user: admin
   password: password
   connect_timeout: 30000
+  schema_migrations_table_name: redshift_schema_migrations
 
 development:
   <<: *default
 ```
+
+If `schema_migrations_table_name` table doesn't exist, this gem creates the table automatically.
+
+`schema_migrations` table schema is following.
+
+```sql
+CREATE TABLE <schema_migrations_table_name> (version text NOT NULL)
+```
+
+## TODO
+- Refine `migrations_path` config.
+- Write test codes.
 
 If you want to change target environment, set `REDSHIFT_ENV` environment variable.
 For example, `REDSHIFT_ENV=prouduction redshift_simple_migrator migrate -c config.yml -p db/migrate`

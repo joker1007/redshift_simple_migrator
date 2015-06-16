@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["joker1007"]
   spec.email         = ["kakyoin.hierophant@gmail.com"]
 
-  spec.summary       = %q{Simple schema migrator for AWS Redshift}
-  spec.description   = %q{Simple schema migrator for AWS Redshift}
+  spec.summary       = %q{Simple schema migrator for AWS Redshift (and PostgreSQL)}
+  spec.description   = %q{Simple schema migrator for AWS Redshift (and PostgreSQL)}
   spec.homepage      = "https://github.com/joker1007/redshift_simple_migrator"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
