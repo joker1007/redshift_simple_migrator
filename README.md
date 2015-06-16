@@ -1,4 +1,5 @@
 # RedshiftSimpleMigrator
+[![Build Status](https://travis-ci.org/joker1007/redshift_simple_migrator.svg?branch=master)](https://travis-ci.org/joker1007/redshift_simple_migrator)
 
 this gem is super simple migrator for AWS Redshift (and PostgreSQL).
 
