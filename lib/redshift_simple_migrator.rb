@@ -1,12 +1,18 @@
 require "redshift_simple_migrator/version"
 
 module RedshiftSimpleMigrator
-  def self.config
-    RedshiftSimpleMigrator::Configuration.instance
-  end
+  class << self
+    def config
+      RedshiftSimpleMigrator::Configuration.instance
+    end
 
-  def self.configure
-    yield self.config
+    def configure
+      yield self.config
+    end
+
+    def logger
+      config.logger
+    end
   end
 end
 

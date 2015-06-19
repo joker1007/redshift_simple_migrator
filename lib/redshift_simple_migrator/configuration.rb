@@ -10,6 +10,10 @@ module RedshiftSimpleMigrator
       "schema_migrations"
     end
 
+    config_accessor :logger do
+      Logger.new($stdout)
+    end
+
     config_accessor :migrations_path
 
     config_accessor :host, :port, :dbname, :user, :password, :connect_timeout

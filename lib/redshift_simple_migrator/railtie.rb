@@ -3,6 +3,7 @@ module RedshiftSimpleMigrator
     initializer "redshift_simple_migrator.initialization" do
       RedshiftSimpleMigrator.configure do |c|
         c.migrations_path = Rails.root.join("redshift", "migrate").to_s
+        c.logger = Rails.logger
       end
     end
 
