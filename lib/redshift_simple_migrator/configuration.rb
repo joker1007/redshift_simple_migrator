@@ -10,9 +10,7 @@ module RedshiftSimpleMigrator
       "schema_migrations"
     end
 
-    config_accessor :logger do
-      Logger.new($stdout)
-    end
+    config_accessor :logger
 
     config_accessor :migrations_path
 

@@ -1,5 +1,6 @@
 require 'active_support/concern'
 require 'active_support/callbacks'
+require 'active_support/core_ext/object'
 
 module RedshiftSimpleMigrator
   class Migration
@@ -83,7 +84,7 @@ module RedshiftSimpleMigrator
 
     def log_sql(sql)
       puts "-- Execute --\n#{sql}"
-      RedshiftSimpleMigrator.logger.info("SQL (RedshiftSimpleMigrator) #{sql}")
+      RedshiftSimpleMigrator.logger.try(:info, "SQL (RedshiftSimpleMigrator) #{sql}")
     end
   end
 end
