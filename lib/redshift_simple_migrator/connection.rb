@@ -13,7 +13,7 @@ module RedshiftSimpleMigrator
       :exec_params,
       :escape,
       :escape_string,
-      :escape_identifier,
+      :quote_ident,
       :escape_literal,
       to: :connection
 

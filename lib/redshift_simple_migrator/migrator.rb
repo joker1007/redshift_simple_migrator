@@ -13,7 +13,7 @@ module RedshiftSimpleMigrator
       @connection = Connection.new
       @migrations_path = config.migrations_path
       @schema_migrations_table_name =
-        @connection.escape_identifier(config.schema_migrations_table_name)
+        @connection.quote_ident(config.schema_migrations_table_name)
 
       @current_version_is_loaded = nil
       @current_migrations = nil

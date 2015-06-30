@@ -48,7 +48,7 @@ module RedshiftSimpleMigrator
       :exec,
       :escape,
       :escape_string,
-      :escape_identifier,
+      :quote_ident,
       :escape_literal,
       to: :connection
     alias :execute :exec
