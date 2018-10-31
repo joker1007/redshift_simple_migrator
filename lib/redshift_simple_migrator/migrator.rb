@@ -17,6 +17,7 @@ module RedshiftSimpleMigrator
 
       @current_version_is_loaded = nil
       @current_migrations = nil
+      @all_migrated_versions_is_loaded = nil
     end
 
     def current_migrations
@@ -37,7 +38,7 @@ module RedshiftSimpleMigrator
       if direction == :up
         migrations = current_migrations.select do |m|
           include_target = target_version ? target_version.to_i >= m.version : true
-          include_target && m.version > current_version.to_i
+          include_target && ! all_migrated_versions.include?(m.version)
         end
         return direction, migrations.sort_by(&:version)
       else
@@ -59,6 +60,22 @@ module RedshiftSimpleMigrator
         @current_version = versions.max
         @current_version_is_loaded = true
         @current_version
+      end
+    rescue PG::UndefinedTable
+      connection.exec(create_schema_migrations_table_query)
+      retry
+    end
+
+    def all_migrated_versions
+      return @all_migrated_versions if @all_migrated_versions_is_loaded
+
+      connection.async_exec(get_version_query) do |result|
+        versions = result.map do |row|
+          row["version"].to_i
+        end
+        @all_migrated_versions = versions
+        @all_migrated_versions_is_loaded = true
+        @all_migrated_versions
       end
     rescue PG::UndefinedTable
       connection.exec(create_schema_migrations_table_query)
