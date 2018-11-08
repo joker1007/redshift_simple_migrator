@@ -4,6 +4,7 @@ module RedshiftSimpleMigrator
   class CLI < Thor
     desc "version", "Show migration version"
     option :config, required: true, type: :string, aliases: :c
+    option :path, required: true, type: :string, aliases: :p
     def version
       with_migrator do |m|
         current_version = m.current_version
