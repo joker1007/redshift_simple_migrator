@@ -84,8 +84,8 @@ module RedshiftSimpleMigrator
 
     def run(target_version = nil)
       direction, migrations = run_migrations(target_version)
-      connection.with_transaction do
-        migrations.each do |m|
+      migrations.each do |m|
+        connection.with_transaction do
           m.send(direction)
           if direction == :up
             insert_version(m.version)
